@@ -1,4 +1,4 @@
-#ifndef TEXTMODE
+//Re fix
 #include "../SDK/SDK.h"
 
 MAKE_SIGNATURE(g_bAllowSecureServers, "engine.dll", "40 88 35 ? ? ? ? 40 84 FF", 0x0);
@@ -12,4 +12,3 @@ MAKE_HOOK(Host_IsSecureServerAllowed, S::Host_IsSecureServerAllowed(), bool)
 		return *reinterpret_cast<bool*>(U::Memory.RelToAbs(S::g_bAllowSecureServers())) = true;
 	return CALL_ORIGINAL();
 }
-#endif 
