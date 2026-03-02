@@ -1025,7 +1025,7 @@ void CMisc::LockItemAchievements()
 	}
 }
 
-void CMisc::AchievementSpam(CTFPlayer* pLocal)
+void CMisc::AchievementSpam(CTFPlayer* pLocal) //I'll probably have to redo it to make it more optimized and use less resources without modifying I::SteamUserStats
 {
 	if (!Vars::Misc::Automation::AchievementSpam.Value || !pLocal || !pLocal->IsAlive())
 	{
