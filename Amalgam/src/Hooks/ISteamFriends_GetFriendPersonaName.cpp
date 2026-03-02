@@ -1,4 +1,4 @@
-#ifndef TEXTMODE
+
 #include "../SDK/SDK.h"
 
 #include "../Features/Players/PlayerUtils.h"
@@ -25,4 +25,3 @@ MAKE_HOOK(ISteamFriends_GetFriendPersonaName, U::Memory.GetVirtual(I::SteamFrien
 
 	return CALL_ORIGINAL(rcx, steamIDFriend);
 }
-#endif
