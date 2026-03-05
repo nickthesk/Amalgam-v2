@@ -1024,16 +1024,16 @@ void CMisc::LockItemAchievements()
 	}
 }
 
-void CMisc::AchievementSpam(CTFPlayer* pLocal) //I'll probably have to redo it to make it more optimized and use less resources without modifying I::SteamUserStats
+void CMisc::GetAchievement(int value)
+{
+	KeyValues* kv = new KeyValues("AchievementEarned");
+	kv->SetInt("achievementID", value);
+	I::EngineClient->ServerCmdKeyValues(kv);
+}
+
+void CMisc::AchievementSpam(CTFPlayer* pLocal)
 {
 	if (!Vars::Misc::Automation::AchievementSpam.Value || !pLocal || !pLocal->IsAlive())
-	{
-		m_eAchievementSpamState = AchievementSpamState::IDLE;
-		return;
-	}
-
-	const auto pAchievementMgr = reinterpret_cast<IAchievementMgr * (*)()>(U::Memory.GetVirtual(I::EngineClient, 114))();
-	if (!pAchievementMgr)
 	{
 		m_eAchievementSpamState = AchievementSpamState::IDLE;
 		return;
@@ -1043,47 +1043,20 @@ void CMisc::AchievementSpam(CTFPlayer* pLocal) //I'll probably have to redo it t
 	{
 	case AchievementSpamState::IDLE:
 	{
-		if (!m_tAchievementSpamTimer.Run(20.0f))
+		if (!m_tAchievementSpamTimer.Run(50.0f))
 			return;
 
-		int specificAchievementID = Vars::Misc::Automation::AchievementSpamID.Value;
+		m_iAchievementSpamID = Vars::Misc::Automation::AchievementSpamID.Value;
 
-		IAchievement* pAchievement = nullptr;
-		for (int i = 0; i < pAchievementMgr->GetAchievementCount(); i++)
+		const char* szName = I::SteamUserStats->GetAchievementName(m_iAchievementSpamID);
+		if (szName)
 		{
-			IAchievement* pCurrentAchievement = pAchievementMgr->GetAchievementByIndex(i);
-			if (pCurrentAchievement && pCurrentAchievement->GetAchievementID() == specificAchievementID)
-			{
-				pAchievement = pCurrentAchievement;
-				break;
-			}
+			m_sAchievementSpamName = szName;
+			m_eAchievementSpamState = AchievementSpamState::WAITING; // easy
 		}
-
-		if (!pAchievement || !pAchievement->GetName())
-		{
-			pAchievement = pAchievementMgr->GetAchievementByIndex(0);
-			if (!pAchievement || !pAchievement->GetName())
-				return;
-
-			specificAchievementID = pAchievement->GetAchievementID();
-			Vars::Misc::Automation::AchievementSpamID.Value = specificAchievementID;
-		}
-
-		m_iAchievementSpamID = specificAchievementID;
-		m_sAchievementSpamName = pAchievement->GetName();
-		m_eAchievementSpamState = AchievementSpamState::CLEARING;
 		break;
 	}
-	case AchievementSpamState::CLEARING:
-	{
-		I::SteamUserStats->RequestCurrentStats();
-		I::SteamUserStats->ClearAchievement(m_sAchievementSpamName.c_str());
-		I::SteamUserStats->StoreStats();
 
-		m_tAchievementDelayTimer.Update();
-		m_eAchievementSpamState = AchievementSpamState::WAITING;
-		break;
-	}
 	case AchievementSpamState::WAITING:
 	{
 		if (!m_tAchievementDelayTimer.Run(0.1f))
@@ -1092,12 +1065,10 @@ void CMisc::AchievementSpam(CTFPlayer* pLocal) //I'll probably have to redo it t
 		m_eAchievementSpamState = AchievementSpamState::AWARDING;
 		break;
 	}
+
 	case AchievementSpamState::AWARDING:
 	{
-		I::SteamUserStats->RequestCurrentStats();
-		pAchievementMgr->AwardAchievement(m_iAchievementSpamID);
-		I::SteamUserStats->StoreStats();
-
+		GetAchievement(m_iAchievementSpamID);
 		m_eAchievementSpamState = AchievementSpamState::IDLE;
 		break;
 	}
