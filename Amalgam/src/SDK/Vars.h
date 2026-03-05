@@ -171,6 +171,7 @@ public:
 NAMESPACE_BEGIN(Vars)
 	NAMESPACE_BEGIN(Config)
 		CVar(LoadDebugSettings, "Load debug settings", false);
+		CVar(AutoLoadCheaterConfig, "Auto load cheater config", false);
 		CVar(SteamWebAPIKey, "steamwebapi key", std::string(""), NOBIND);
 	NAMESPACE_END(Config)
 	
@@ -522,16 +523,16 @@ NAMESPACE_BEGIN(Vars)
 	NAMESPACE_BEGIN(AntiAim, Antiaim)
 		CVar(Enabled, VA_LIST("Enabled", "Antiaim enabled"), false);
 		CVarEnum(PitchReal, "Real pitch", 0, NONE, nullptr,
-			VA_LIST("None", "Up", "Down", "Zero", "Jitter", "Reverse jitter", "Half up", "Half down", "Random", "Spin", "Ultra Random"),
-			None, Up, Down, Zero, Jitter, ReverseJitter, HalfUp, HalfDown, Random, Spin, UltraRandom);
+			VA_LIST("None", "Up", "Down", "Zero", "Jitter", "Reverse jitter", "Half up", "Half down", "Random", "Spin", "Ultra Random", "Heck", "Saw", "Moonwalk", "Timed flip (3s)", "Timed flip (3-10s)"),
+			None, Up, Down, Zero, Jitter, ReverseJitter, HalfUp, HalfDown, Random, Spin, UltraRandom, Heck, Saw, Moonwalk, TimedFlip, TimedFlipRandom);
 		CVarEnum(PitchFake, "Fake pitch", 0, NONE, nullptr,
-			VA_LIST("None", "Up", "Down", "Jitter", "Reverse jitter", "Half up", "Half down", "Random", "Spin", "Ultra Random"),
-			None, Up, Down, Jitter, ReverseJitter, HalfUp, HalfDown, Random, Spin, UltraRandom);
-		Enum(Yaw, Forward, Left, Right, Backwards, Edge, Jitter, Spin, Random, Wiggle, Mercedes, Star, UltraRandom);
+			VA_LIST("None", "Up", "Down", "Jitter", "Reverse jitter", "Half up", "Half down", "Random", "Spin", "Ultra Random", "Inverse", "Mirror"),
+			None, Up, Down, Jitter, ReverseJitter, HalfUp, HalfDown, Random, Spin, UltraRandom, Inverse, Mirror);
+		Enum(Yaw, Forward, Left, Right, Backwards, Edge, Jitter, Spin, Random, Wiggle, Mercedes, Star, UltraRandom, Sideways, Omega, RandomUnclamped, Heck, Tornado, Pulse, Helix, Quantum);
 		CVarValues(YawReal, "Real yaw", 0, NONE, nullptr,
-			"Forward", "Left", "Right", "Backwards", "Edge", "Jitter", "Spin", "Random", "Wiggle", "Mercedes", "Star", "Ultra Random");
+			"Forward", "Left", "Right", "Backwards", "Edge", "Jitter", "Spin", "Random", "Wiggle", "Mercedes", "Star", "Ultra Random", "Sideways", "Omega", "Random Unclamped", "Heck", "Tornado", "Pulse", "Helix", "Quantum");
 		CVarValues(YawFake, "Fake yaw", 0, NONE, nullptr,
-			"Forward", "Left", "Right", "Backwards", "Edge", "Jitter", "Spin", "Random", "Wiggle", "Mercedes", "Star", "Ultra Random");
+			"Forward", "Left", "Right", "Backwards", "Edge", "Jitter", "Spin", "Random", "Wiggle", "Mercedes", "Star", "Ultra Random", "Sideways", "Omega", "Random Unclamped", "Heck", "Tornado", "Pulse", "Helix", "Quantum");
 		Enum(YawMode, View, Target);
 		CVarValues(RealYawBase, "Real base", 0, NONE, nullptr,
 			"View", "Target");
@@ -1108,11 +1109,11 @@ I dont think this is a good idea to disable simulations completely:
 				};
 				return vItemAchievementIDs;
 			}
-			CVar(AutoF2Ignored, "Auto F2 ignored", false);
-			CVar(AutoF1Priority, "Auto F1 priority", false);
-			CVarEnum(AutoVotekick, "Auto votekick", 0, NONE, nullptr,
-				VA_LIST("Off", "Random", "Prioritized only"),
-				Off, Random, Prio);
+			CVarEnum(AutoVote, "Auto vote", 0b0, DROPDOWN_MULTI, "Off",
+				VA_LIST("Defend", "Assist", "Kick", "##Divider", "Kick all", "Wait for cooldown"),
+				Defend = 1 << 0, Assist = 1 << 1, Kick = 1 << 2, KickAll = 1 << 3, Cooldown = 1 << 4);
+			CVar(AutoVoteDelay, "Random vote delay", false);
+			CVar(AutoVoteDelayInterval, "Delay interval", FloatRange_t(1.f, 6.5f), SLIDER_MIN, 1.f, 6.5f, 0.5f, "%0.1fs - %0.1fs");
 			CVar(RandomClass, "Random class", false);
 			CVarEnum(RandomClassExclude, "Random class exclude", 0b0, DROPDOWN_MULTI, "None",
 				VA_LIST("Scout", "Sniper", "Soldier", "Demoman", "Medic", "Heavy", "Pyro", "Spy", "Engineer"),
@@ -1160,7 +1161,7 @@ I dont think this is a good idea to disable simulations completely:
 		NAMESPACE_BEGIN(Exploits)
 			CVar(PureBypass, "Pure bypass", false);
 			CVar(CheatsBypass, "Cheats bypass", false);
-			CVar(UnlockCVars, "Unlock CVars", false);
+			CVar(UnlockCVars, "Unlock CVars", true);
 			CVar(EquipRegionUnlock, "Equip region unlock", false);
 			CVar(BreakShootSound, "Break shoot sound", false);
 			CVar(BackpackExpander, "Backpack expander", false);

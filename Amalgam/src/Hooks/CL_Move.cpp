@@ -8,6 +8,7 @@
 #include "../Features/Backtrack/Backtrack.h"
 #include "../Features/Misc/Misc.h"
 #include "../Features/Visuals/Visuals.h"
+#include "../Features/Misc/AutoVote/AutoVote.h"
 #ifdef TEXTMODE
 #include "../Features/Misc/NamedPipe/NamedPipe.h"
 #endif 
@@ -29,7 +30,9 @@ MAKE_HOOK(CL_Move, S::CL_Move(), void,
 		F::Backtrack.m_iTickCount--;
 
 	F::Binds.Run();
+#ifndef TEXTMODE
 	H::ConVars.Modify(Vars::Misc::Exploits::UnlockCVars.Value);
+#endif
 	F::Backtrack.SendLerp();
 	F::Misc.PingReducer();
 	F::Misc.MicSpam();

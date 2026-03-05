@@ -5,6 +5,8 @@
 #include "../Features/NavBot/NavEngine/NavEngine.h"
 #include "../Features/NavBot/DangerManager/DangerManager.h"
 #include "../Features/NavBot/NavBotJobs/GetSupplies.h"
+#include "../Features/Misc/AutoVote/AutoVote.h"
+#include "../Features/Configs/Configs.h"
 
 MAKE_HOOK(CHLClient_LevelShutdown, U::Memory.GetVirtual(I::Client, 7), void,
 	void* rcx)
@@ -21,6 +23,8 @@ MAKE_HOOK(CHLClient_LevelShutdown, U::Memory.GetVirtual(I::Client, 7), void,
 	F::NavEngine.FlushCrumbCache();
 	F::DangerManager.Reset();
 	F::NavBotSupplies.ResetCachedOrigins();
+	F::AutoVote.Reset();
+	F::Configs.HandleAutoConfig(false);
 
 	CALL_ORIGINAL(rcx);
 }
