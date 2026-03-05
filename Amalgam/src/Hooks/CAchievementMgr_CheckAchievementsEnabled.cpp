@@ -6,6 +6,9 @@ MAKE_HOOK(CAchievementMgr_CheckAchievementsEnabled, S::CAchievementMgr_CheckAchi
 	void* rcx)
 {
 	DEBUG_RETURN(CAchievementMgr_CheckAchievementsEnabled, rcx);
-
+	
+if (Vars::Misc::Automation::AchievementSpam.Value)
+	return false;
+		//to keep all achievements locked and prevent them from being unlocked accidentally
 	return !I::EngineClient->IsPlayingDemo();
 }
