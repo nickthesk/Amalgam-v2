@@ -81,7 +81,7 @@
     - Voice command spam
     - Chat spam
     - Voice chat spam
-    - Achievement spam
+    - Achievement spam (It's not the same as the original Amalgam V2.)
     - Vote spam
 	- Join spam (constantly changes team to spam the chat)
   - New commands (all commands now use `cat_` prefix):
